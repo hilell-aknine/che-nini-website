@@ -784,6 +784,147 @@
       opacity: 1;
       transform: translateY(0);
     }
+
+    /* ===== Modal ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(26, 26, 26, 0.8);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: var(--cream-vanilla);
+      max-width: 500px;
+      width: 100%;
+      padding: 50px 40px;
+      position: relative;
+      transform: translateY(30px);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 30px;
+      height: 30px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--truffle);
+      transition: stroke 0.3s ease;
+    }
+
+    .modal-close:hover svg {
+      stroke: var(--classic-noir);
+    }
+
+    .modal h3 {
+      font-family: var(--font-heading);
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--classic-noir);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .modal-subtitle {
+      text-align: center;
+      color: var(--truffle);
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--classic-noir);
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(200, 169, 126, 0.3);
+      background: var(--white);
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--classic-noir);
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--golden-crust);
+    }
+
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: #999;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .modal .btn {
+      width: 100%;
+      margin-top: 10px;
+      animation: none;
+    }
+
+    @media (max-width: 768px) {
+      .modal {
+        padding: 40px 25px;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -989,9 +1130,61 @@
     <p>דברו איתנו בוואטסאפ לכל שאלה או להרכבת מארז מותאם אישית</p>
     <div class="cta-buttons">
       <a href="https://wa.me/972547471300" class="btn">הזמנה בוואטסאפ</a>
-      <a href="#collection" class="btn btn-outline">לצפייה בקולקציה</a>
+      <button onclick="openModal()" class="btn btn-outline">הזמנה גדולה / אירוע</button>
     </div>
   </section>
+
+  <!-- Large Order Modal -->
+  <div class="modal-overlay" id="orderModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+      <h3>הזמנה גדולה</h3>
+      <p class="modal-subtitle">השאירו פרטים ונחזור אליכם בהקדם</p>
+      <form id="largeOrderForm" onsubmit="submitForm(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>שם מלא *</label>
+            <input type="text" name="name" placeholder="השם שלכם" required>
+          </div>
+          <div class="form-group">
+            <label>טלפון *</label>
+            <input type="tel" name="phone" placeholder="050-000-0000" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>סוג האירוע</label>
+          <select name="event">
+            <option value="">בחרו סוג אירוע</option>
+            <option value="חתונה">חתונה</option>
+            <option value="בר/בת מצווה">בר/בת מצווה</option>
+            <option value="יום הולדת">יום הולדת</option>
+            <option value="אירוע עסקי">אירוע עסקי</option>
+            <option value="חג/חגיגה">חג/חגיגה</option>
+            <option value="אחר">אחר</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>תאריך משוער</label>
+            <input type="date" name="date">
+          </div>
+          <div class="form-group">
+            <label>כמות מנות (בערך)</label>
+            <input type="number" name="quantity" placeholder="50">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>פרטים נוספים</label>
+          <textarea name="details" placeholder="ספרו לנו על האירוע, העדפות מיוחדות, אלרגיות..."></textarea>
+        </div>
+        <button type="submit" class="btn">שליחת פרטים</button>
+      </form>
+    </div>
+  </div>
 
   <!-- Footer -->
   <footer class="footer">
@@ -1078,6 +1271,62 @@
         }
       });
     });
+
+    // Modal functions
+    function openModal() {
+      document.getElementById('orderModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('orderModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Close modal on overlay click
+    document.getElementById('orderModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // Form submission via WhatsApp
+    function submitForm(e) {
+      e.preventDefault();
+      const form = document.getElementById('largeOrderForm');
+      const formData = new FormData(form);
+
+      const name = formData.get('name');
+      const phone = formData.get('phone');
+      const event = formData.get('event') || 'לא צוין';
+      const date = formData.get('date') || 'לא צוין';
+      const quantity = formData.get('quantity') || 'לא צוין';
+      const details = formData.get('details') || 'אין';
+
+      const message = `🎀 *הזמנה גדולה - CHE NINI*
+
+*שם:* ${name}
+*טלפון:* ${phone}
+*סוג אירוע:* ${event}
+*תאריך:* ${date}
+*כמות מנות:* ${quantity}
+
+*פרטים נוספים:*
+${details}`;
+
+      const whatsappUrl = `https://wa.me/972547471300?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+
+      closeModal();
+      form.reset();
+    }
   </script>
 
 </body>
