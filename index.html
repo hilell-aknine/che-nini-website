@@ -1297,35 +1297,67 @@
       }
     });
 
-    // Form submission via WhatsApp
-    function submitForm(e) {
+    // API Configuration - change to production URL when deploying
+    const API_URL = 'http://localhost:3000'; // Change to your production URL
+
+    // Form submission via API
+    async function submitForm(e) {
       e.preventDefault();
       const form = document.getElementById('largeOrderForm');
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+
+      // Show loading state
+      submitBtn.textContent = 'שולח...';
+      submitBtn.disabled = true;
+
       const formData = new FormData(form);
+      const data = {
+        name: formData.get('name'),
+        phone: formData.get('phone'),
+        event: formData.get('event'),
+        date: formData.get('date'),
+        quantity: formData.get('quantity'),
+        details: formData.get('details')
+      };
 
-      const name = formData.get('name');
-      const phone = formData.get('phone');
-      const event = formData.get('event') || 'לא צוין';
-      const date = formData.get('date') || 'לא צוין';
-      const quantity = formData.get('quantity') || 'לא צוין';
-      const details = formData.get('details') || 'אין';
+      try {
+        const response = await fetch(`${API_URL}/api/large-order`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
 
-      const message = `🎀 *הזמנה גדולה - CHE NINI*
+        const result = await response.json();
 
-*שם:* ${name}
-*טלפון:* ${phone}
-*סוג אירוע:* ${event}
-*תאריך:* ${date}
-*כמות מנות:* ${quantity}
+        if (result.success) {
+          alert('תודה! קיבלנו את פנייתך ונחזור אליך בהקדם 🎀');
+          closeModal();
+          form.reset();
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        // Fallback to WhatsApp if API fails
+        console.log('API unavailable, using WhatsApp fallback');
+        const message = `🎀 *הזמנה גדולה - CHE NINI*
+
+*שם:* ${data.name}
+*טלפון:* ${data.phone}
+*סוג אירוע:* ${data.event || 'לא צוין'}
+*תאריך:* ${data.date || 'לא צוין'}
+*כמות מנות:* ${data.quantity || 'לא צוין'}
 
 *פרטים נוספים:*
-${details}`;
+${data.details || 'אין'}`;
 
-      const whatsappUrl = `https://wa.me/972547471300?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
+        window.open(`https://wa.me/972547471300?text=${encodeURIComponent(message)}`, '_blank');
+        closeModal();
+        form.reset();
+      }
 
-      closeModal();
-      form.reset();
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
     }
   </script>
 
